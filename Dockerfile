@@ -1,7 +1,10 @@
-FROM node:slim
-EXPOSE 8080
+FROM python:3.10-slim
+
 WORKDIR /app
-COPY package.json /app/
-RUN npm install
-COPY server.js /app/
-CMD node /app/server.js
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app.py .
+
+CMD ["python", "app.py"]
