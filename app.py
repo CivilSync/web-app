@@ -1,24 +1,23 @@
-from flask import Flask, jsonify
-from flask_mysqldb import MySQL
-import os
+from flask import Flask
+import pymysql
 
 app = Flask(__name__)
 
-# DB-Konfiguration über Umgebungsvariablen
-app.config['MYSQL_HOST'] = os.environ.get('DB_HOST', 'mariadb')
-app.config['MYSQL_USER'] = os.environ.get('DB_USER', 'user')
-app.config['MYSQL_PASSWORD'] = os.environ.get('DB_PASSWORD', 'password')
-app.config['MYSQL_DB'] = os.environ.get('DB_NAME', 'testdb')
-
-mysql = MySQL(app)
+conn = pymysql.connect(
+    host='localhost',
+    user='dein_user',
+    password='dein_passwort',
+    db='deine_datenbank',
+    charset='utf8mb4',
+    cursorclass=pymysql.cursors.DictCursor
+)
 
 @app.route('/')
-def index():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT 'Hello from MariaDB!'")
-    result = cur.fetchone()
-    cur.close()
-    return jsonify(message=result[0])
+def hello():
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT NOW()")
+        result = cursor.fetchone()
+    return f"Database time: {result['NOW()']}"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
